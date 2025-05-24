@@ -19,8 +19,7 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm ci # faster and fails if package-lock mismatch
-        # use `npm install` if you don't have package-lock.json
+        run: npm install
 
       - name: Run Discord bot
         run: node bot.js
