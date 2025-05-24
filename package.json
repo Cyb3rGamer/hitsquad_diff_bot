@@ -2,7 +2,6 @@
   "name": "discord-diff-bot",
   "version": "1.0.0",
   "main": "bot.js",
-  "type": "module",
 "dependencies": {
   "discord.js": "^14.14.1",
   "node-fetch": "^3.3.1"
