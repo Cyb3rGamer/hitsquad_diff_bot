@@ -96,6 +96,7 @@ async function reportChanges(channel) {
 
 client.once('ready', async () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
+  console.log("channelid is",CHANNEL_ID);
   const channel = await client.channels.fetch(CHANNEL_ID);
   await reportChanges(channel);
   client.destroy(); // Exit after sending
