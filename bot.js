@@ -1,13 +1,25 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const fetch = require('node-fetch');
 const fs = require('fs');
+const path = require('path');
 
-const TOKEN = 'YOUR_DISCORD_BOT_TOKEN';
-const CHANNEL_ID = 'YOUR_DISCORD_CHANNEL_ID';
-const CACHE_FILE = 'cached_items.json';
+// Use environment variables set by GitHub Actions
+const TOKEN = process.env.DISCORD_TOKEN;
+const CHANNEL_ID = process.env.CHANNEL_ID;
+const CACHE_DIR = '.cache';
+const CACHE_FILE = path.join(CACHE_DIR, 'items.json');
+
 const API_URL = 'https://api.streamelements.com/kappa/v2/store/61e8d63d3d12f65a5584b351/items?source=website';
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] });
+const client = new Client({
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages]
+});
+
+function ensureCacheDir() {
+  if (!fs.existsSync(CACHE_DIR)) {
+    fs.mkdirSync(CACHE_DIR);
+  }
+}
 
 function loadCachedItems() {
   if (fs.existsSync(CACHE_FILE)) {
@@ -18,6 +30,7 @@ function loadCachedItems() {
 }
 
 function saveCachedItems(items) {
+  ensureCacheDir();
   fs.writeFileSync(CACHE_FILE, JSON.stringify(items, null, 2));
 }
 
@@ -31,7 +44,6 @@ function diffItems(oldItems, newItems) {
 
   const added = newItems.filter(item => !oldIds.has(item._id));
   const removed = oldItems.filter(item => !newIds.has(item._id));
-
   return { added, removed };
 }
 
@@ -86,9 +98,7 @@ client.once('ready', async () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
   const channel = await client.channels.fetch(CHANNEL_ID);
   await reportChanges(channel);
-
-  // Optional: check every 10 minutes
-  setInterval(() => reportChanges(channel), 10 * 60 * 1000);
+  client.destroy(); // Exit after sending
 });
 
 client.login(TOKEN);
